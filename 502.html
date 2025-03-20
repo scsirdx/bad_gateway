@@ -9,14 +9,148 @@
       h2 {
         font-size: 23px;
       }
+
+      #buttons_container {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        width: 50%;
+        margin: 20px 0;
+      }
+
+      #buttons_container button {
+        padding: 10px 15px;
+        cursor: pointer;
+        background-color: #f8f8f8;
+        border: 2px solid #000;
+        border-radius: 5px;
+        font-weight: bold;
+        transition: background-color 0.2s;
+      }
+
+      #buttons_container button:hover {
+        background-color: #e0e0e0;
+      }
+
+      #stats {
+        font-weight: bold;
+        margin-top: 15px;
+      }
     </style>
   </head>
   <body>
-    <div style="background-color: #F0C900; border: 10px solid #000000; border-radius: 25px; padding: 60px; width: 450px; margin: 0 auto">
-      <center>
+    <div
+      style="
+        background-color: #f0c900;
+        border: 10px solid #000000;
+        border-radius: 25px;
+        padding: 60px;
+        width: 450px;
+        margin: 0 auto;
+      "
+    >
+      <center id="center">
         <h1>Bad Gateway</h1>
-        <h2>Internetkurort</h2>
+        <h2 id="kurort">Internetkurort</h2>
       </center>
     </div>
   </body>
+  <script>
+      const SPANK_BUTTON_TEXT = "Spank";
+      const SCOLD_BUTTON_TEXT = "Scold";
+      const SCOLD_GATEWAY_TEXT = [
+        "Bad Gateway, bad!",
+        "What did we say about 502 responses?",
+        "You won't get any cookies with that behavior!",
+        "You're not allowed to play with the internet anymore!",
+      ];
+      const SPANK_GATEWAY_TEXT = [
+        "Ouch!",
+        "Careful not to break it (more).",
+        "You're not supposed to spank the internet!",
+        "That's not how you fix it!",
+        "Smacking HTML formatted pages doesn't help.",
+      ];
+
+      const storageManager = {
+        getCounters() {
+          return {
+            spankedTimes: parseInt(localStorage.getItem("spankedTimes")) || 0,
+            scoldedTimes: parseInt(localStorage.getItem("scoldedTimes")) || 0
+          };
+        },
+        updateCounters(spankedTimes, scoldedTimes) {
+          localStorage.setItem("spankedTimes", spankedTimes);
+          localStorage.setItem("scoldedTimes", scoldedTimes);
+        }
+      };
+
+      function getRndArrayElement(array) {
+        return array[Math.floor(Math.random() * array.length)];
+      }
+
+      let state = storageManager.getCounters();
+
+      function spankGateway() {
+        state.spankedTimes++;
+        storageManager.updateCounters(state.spankedTimes, state.scoldedTimes);
+        updateUI();
+        updateGatewayMessage(SPANK_GATEWAY_TEXT);
+      }
+
+      function scoldGateway() {
+        state.scoldedTimes++;
+        storageManager.updateCounters(state.spankedTimes, state.scoldedTimes);
+        updateUI();
+        updateGatewayMessage(SCOLD_GATEWAY_TEXT);
+      }
+
+      function updateUI() {
+        document.getElementById("stats").textContent =
+          `Spanked: ${state.spankedTimes} | Scolded: ${state.scoldedTimes}`;
+      }
+
+      function updateGatewayMessage(textArray) {
+        document.getElementById("kurort").textContent = getRndArrayElement(textArray);
+        applyRandomStyleToHeader();
+      }
+
+      function applyRandomStyleToHeader() {
+        const kurortHeader = document.getElementById("kurort");
+
+        const baseFontSize = 23;
+        const fontSizeVariation = Math.floor(Math.random() * 5) - 2; // -2 to +2
+        const newFontSize = baseFontSize + fontSizeVariation;
+
+        const tiltAngle = Math.floor(Math.random() * 13) - 6; // -6 to +6
+
+        kurortHeader.style.fontSize = `${newFontSize}px`;
+        kurortHeader.style.transform = `rotate(${tiltAngle}deg)`;
+      }
+
+      function initializeUI() {
+        const center = document.getElementById("center");
+        const kurortHeader = document.getElementById("kurort");
+
+        const buttonsContainer = document.createElement("div");
+        buttonsContainer.id = "buttons_container";
+
+        const spankButton = document.createElement("button");
+        spankButton.textContent = SPANK_BUTTON_TEXT;
+        spankButton.addEventListener("click", spankGateway);
+
+        const scoldButton = document.createElement("button");
+        scoldButton.textContent = SCOLD_BUTTON_TEXT;
+        scoldButton.addEventListener("click", scoldGateway);
+
+        const stats = document.createElement("div");
+        stats.id = "stats";
+        stats.textContent = `Spanked: ${state.spankedTimes} | Scolded: ${state.scoldedTimes}`;
+
+        buttonsContainer.append(spankButton, scoldButton);
+        center.append(buttonsContainer, stats);
+      }
+
+      document.addEventListener("DOMContentLoaded", initializeUI);
+  </script>
 </html>
